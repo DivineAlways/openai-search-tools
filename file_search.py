@@ -32,7 +32,7 @@ load_dotenv()
 console = Console()
 
 # Vector store ID
-VECTOR_STORE_ID = "vs_67d0cc79ab4c8191a92661559e49dbd2"
+VECTOR_STORE_ID = "vs_VabOi290bMcTo5cBe2WFE4iA"
 
 # Initialize OpenAI client
 

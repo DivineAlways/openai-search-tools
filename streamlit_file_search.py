@@ -26,7 +26,7 @@ st.set_page_config(
 )
 
 # Vector store ID
-VECTOR_STORE_ID = "vs_67d0cc79ab4c8191a92661559e49dbd2"
+VECTOR_STORE_ID = "vs_VabOi290bMcTo5cBe2WFE4iA"
 
 # List of common countries with their ISO codes
 COUNTRIES = [
