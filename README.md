@@ -83,6 +83,37 @@ A full-featured web application that combines file search and web search capabil
    - Create a `.env` file in the project root
    - Add your API key: `OPENAI_API_KEY=your_api_key_here`
 
+### Using Conda Environment (Recommended)
+
+1. Install Miniconda or Anaconda if you haven't already:
+
+   - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+   - [Anaconda](https://www.anaconda.com/products/distribution)
+
+2. Create a new conda environment:
+
+   ```bash
+   conda create -n openai-search python=3.10
+   ```
+
+3. Activate the environment:
+
+   ```bash
+   conda activate openai-search
+   ```
+
+4. Install the required dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. When you're done using the tools, you can deactivate the environment:
+
+   ```bash
+   conda deactivate
+   ```
+
 ## Usage
 
 ### Terminal-Based Tools
