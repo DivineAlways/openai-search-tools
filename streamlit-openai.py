@@ -1,7 +1,12 @@
 import os
-import openai
 import streamlit as st
 from dotenv import load_dotenv
+
+try:
+    import openai
+except ModuleNotFoundError:
+    st.error("⚠️ The `openai` package is not installed. Please ensure it is installed in your environment using `pip install openai`.")
+    st.stop()
 
 # Load environment variables
 load_dotenv()
@@ -54,7 +59,7 @@ def perform_web_search(query):
         with st.spinner("Searching the web..."):
             web_search_tool = {"type": "web_search_preview", "search_context_size": context_size}
             response = client.responses.create(
-                model="gpt-4-turbo",
+                model="gpt-4",  # Use GPT-4 which supports web search
                 tools=[web_search_tool],
                 tool_choice={"type": "web_search_preview"},
                 input=query
@@ -71,7 +76,7 @@ def perform_combined_search(query):
             file_search_tool = {"type": "file_search", "vector_store_ids": [VECTOR_STORE_ID]}
             web_search_tool = {"type": "web_search_preview", "search_context_size": context_size}
             response = client.responses.create(
-                model="gpt-4-turbo",
+                model="gpt-4",  # Use GPT-4 since it supports web search
                 tools=[file_search_tool, web_search_tool],
                 tool_choice="auto",
                 input=query
