@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
+import requests
 
 try:
     import openai
@@ -13,6 +14,7 @@ load_dotenv()
 
 # Load OpenAI API key from Streamlit secrets
 API_KEY = st.secrets.get("OPENAI_API_KEY")
+SERPAPI_KEY = st.secrets.get("SERPAPI_KEY")  # External search API key
 if not API_KEY:
     st.error("⚠️ OpenAI API key is missing! Make sure it is set in Streamlit secrets.")
     st.stop()
@@ -30,9 +32,6 @@ search_type = st.sidebar.radio("Search Type", ["File Search", "Web Search", "Com
 # Optional: Vector Store ID (for File Search)
 VECTOR_STORE_ID = st.sidebar.text_input("Vector Store ID", value="vs_67dc7365c2f0819191c1f049dbd761a9")
 
-# Optional: Web Search Context Size (low, medium, high)
-context_size = st.sidebar.selectbox("Web Search Context Size", ["low", "medium", "high"], index=1)
-
 # Search Query Input
 query = st.text_input("Enter your search query", placeholder="Type something...")
 search_button = st.button("🔍 Search")
@@ -43,7 +42,7 @@ def perform_file_search(query):
         with st.spinner("Searching files..."):
             file_search_tool = {"type": "file_search", "vector_store_ids": [VECTOR_STORE_ID]}
             response = client.responses.create(
-                model="gpt-4-turbo",
+                model="gpt-4-turbo",  # Ensure using a working model
                 tools=[file_search_tool],
                 tool_choice={"type": "file_search"},
                 input=query
@@ -53,37 +52,39 @@ def perform_file_search(query):
         st.error(f"File search failed: {e}")
         return None
 
-# Perform Web Search
+# Perform Web Search (Using SerpAPI Instead of OpenAI's Web Search)
 def perform_web_search(query):
+    if not SERPAPI_KEY:
+        st.error("⚠️ SerpAPI key is missing! Please set it in Streamlit secrets.")
+        return None
+    
     try:
         with st.spinner("Searching the web..."):
-            web_search_tool = {"type": "web_search_preview", "search_context_size": context_size}
-            response = client.responses.create(
-                model="gpt-4",  # Use GPT-4 which supports web search
-                tools=[web_search_tool],
-                tool_choice={"type": "web_search_preview"},
-                input=query
-            )
-            return response
+            url = f"https://serpapi.com/search.json?q={query}&api_key={SERPAPI_KEY}"
+            response = requests.get(url)
+            data = response.json()
+            
+            if "organic_results" in data:
+                return data["organic_results"]
+            else:
+                st.error("No results found.")
+                return None
     except Exception as e:
         st.error(f"Web search failed: {e}")
         return None
 
 # Perform Combined Search
 def perform_combined_search(query):
-    try:
-        with st.spinner("Performing combined search..."):
-            file_search_tool = {"type": "file_search", "vector_store_ids": [VECTOR_STORE_ID]}
-            web_search_tool = {"type": "web_search_preview", "search_context_size": context_size}
-            response = client.responses.create(
-                model="gpt-4",  # Use GPT-4 since it supports web search
-                tools=[file_search_tool, web_search_tool],
-                tool_choice="auto",
-                input=query
-            )
-            return response
-    except Exception as e:
-        st.error(f"Combined search failed: {e}")
+    file_results = perform_file_search(query)
+    web_results = perform_web_search(query)
+    
+    if file_results and web_results:
+        return {"File Search": file_results, "Web Search": web_results}
+    elif file_results:
+        return {"File Search": file_results}
+    elif web_results:
+        return {"Web Search": web_results}
+    else:
         return None
 
 # Process Search Button Click
