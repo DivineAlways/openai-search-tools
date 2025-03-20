@@ -38,7 +38,7 @@ def perform_file_search(query):
         with st.spinner("Searching files..."):
             file_search_tool = {"type": "file_search", "vector_store_ids": [VECTOR_STORE_ID]}
             response = client.responses.create(
-                model="gpt-4o-mini",
+                model="gpt-4-turbo",
                 tools=[file_search_tool],
                 tool_choice={"type": "file_search"},
                 input=query
@@ -54,7 +54,7 @@ def perform_web_search(query):
         with st.spinner("Searching the web..."):
             web_search_tool = {"type": "web_search_preview", "search_context_size": context_size}
             response = client.responses.create(
-                model="gpt-4o-mini",
+                model="gpt-4-turbo",
                 tools=[web_search_tool],
                 tool_choice={"type": "web_search_preview"},
                 input=query
@@ -71,7 +71,7 @@ def perform_combined_search(query):
             file_search_tool = {"type": "file_search", "vector_store_ids": [VECTOR_STORE_ID]}
             web_search_tool = {"type": "web_search_preview", "search_context_size": context_size}
             response = client.responses.create(
-                model="gpt-4o-mini",
+                model="gpt-4-turbo",
                 tools=[file_search_tool, web_search_tool],
                 tool_choice="auto",
                 input=query
